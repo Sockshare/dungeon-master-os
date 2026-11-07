@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dungeon Master OS — 3D Isometric Dungeons &amp; Dragons Tabletop &amp; 4-Agent GM Command Deck</title>
+  <link rel="stylesheet" href="/static/styles.css?v=6.0" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand-block">
+      <div class="brand-crest" aria-hidden="true">
+        <img src="/static/assets/portraits/monster_dragon.jpg" alt="D&amp;D Dragon Crest" class="brand-crest-img" />
+      </div>
+      <div>
+        <div class="brand-title-row">
+          <h1 class="brand-title">DUNGEON MASTER OS</h1>
+          <span class="version-pill" id="headerProviderBadge">3D WebGL • 4-Agent D&amp;D 5e GM</span>
+        </div>
+        <p class="brand-subtitle" id="activeCampaignSubtitle">3D Dungeons &amp; Dragons Miniature Tabletop, Spell VFX &amp; Autonomous 4-Agent GM</p>
+      </div>
+    </div>
+
+    <nav class="main-nav" aria-label="Primary Workspace Navigation">
+      <button type="button" class="nav-btn active" id="navDeckBtn" data-view="deck">⚔️ 3D Dungeon Deck</button>
+      <button type="button" class="nav-btn" id="navDiceBtn" data-view="dice">🎲 3D Dice &amp; Odds</button>
+      <button type="button" class="nav-btn" id="navHeroBtn" data-view="hero">🛡️ Hero &amp; Spellbook</button>
+      <button type="button" class="nav-btn" id="navCampaignsBtn" data-view="campaigns">🏰 Campaigns &amp; Export</button>
+      <button type="button" class="nav-btn" id="navSettingsBtn" data-view="settings">⚙️ AI &amp; Audio</button>
+    </nav>
+
+    <div class="topbar-actions">
+      <button type="button" class="chip-btn" id="ambientAudioBtn" title="Toggle Web Audio Biome Soundscape">🔊 Soundscape: Ready</button>
+      <select id="quickCampaignSelect" class="campaign-select" aria-label="Switch Active Campaign"></select>
+    </div>
+  </header>
+
+  <main class="workspace-container">
+    <!-- ==================== VIEW 1: COMMAND DECK ==================== -->
+    <section id="view-deck" class="view-section active">
+      <!-- 4-Agent Status Strip -->
+      <div class="agent-telemetry-strip" id="agentTelemetryStrip">
+        <div class="agent-card" id="agentCardWorld">
+          <div class="agent-card-header">
+            <span class="agent-icon">🌍</span>
+            <span class="agent-title">Worldbuilder &amp; Narrative GM</span>
+            <span class="agent-status-badge" id="worldAgentModeBadge">ACTIVE</span>
+          </div>
+          <p class="agent-summary" id="worldAgentSummary">Atmospheric sensory engine &amp; dynamic room narration.</p>
+        </div>
+        <div class="agent-card" id="agentCardRules">
+          <div class="agent-card-header">
+            <span class="agent-icon">⚖️</span>
+            <span class="agent-title">Rules Lawyer &amp; D20 Mechanics</span>
+            <span class="agent-status-badge gold" id="rulesAgentVerdictBadge">DC READY</span>
+          </div>
+          <p class="agent-summary" id="rulesAgentSummary">Evaluates STR/DEX/CON/INT/WIS/CHA vs DC 10–20, Nat 20 &amp; Nat 1.</p>
+        </div>
+        <div class="agent-card" id="agentCardNpc">
+          <div class="agent-card-header">
+            <span class="agent-icon">🎭</span>
+            <span class="agent-title">NPC Actor &amp; Memory</span>
+            <span class="agent-status-badge purple" id="npcAgentDispBadge">MEMORIES</span>
+          </div>
+          <p class="agent-summary" id="npcAgentSummary">Tracks voice quirks, secret motives &amp; Disposition Meter.</p>
+        </div>
+        <div class="agent-card" id="agentCardTactical">
+          <div class="agent-card-header">
+            <span class="agent-icon">🎯</span>
+            <span class="agent-title">Tactical Encounter Director</span>
+            <span class="agent-status-badge crimson" id="tacticalAgentRoundBadge">ROUND 1</span>
+          </div>
+          <p class="agent-summary" id="tacticalAgentSummary">Turn-based initiative, monster AI moves, AC/HP &amp; loot drops.</p>
+        </div>
+      </div>
+
+      <div class="deck-grid">
+        <!-- Left Column: 3D WebGL Dungeon Tabletop + Tactical Tracker -->
+        <div class="deck-left-col">
+          <div class="panel-card map-panel ornate-frame">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title" id="mapBiomeTitle">Sunken Obsidian Crypt</h2>
+                <p class="panel-subtitle" id="mapRoomSubtitle">Room: Vestibule of Weeping Basalt • Scale: 5 ft/tile</p>
+              </div>
+              <div class="map-toolbar">
+                <select id="biomeSelect" class="compact-select" aria-label="Switch Battlemap Biome"></select>
+                <button type="button" class="small-btn" id="toggleFogBtn">🌫️ Fog: ON</button>
+                <button type="button" class="small-btn" id="revealAllFogBtn">👁️ Reveal All</button>
+                <a class="small-btn link-btn" id="exportMapPngBtn" href="/api/campaigns/camp_sunken_crypt/battlemap.png" target="_blank" rel="noopener">🖼️ PNG</a>
+              </div>
+            </div>
+
+            <!-- 3D Camera & Spell Special Effects Bar -->
+            <div class="camera-vfx-bar" id="camera3dToolbar" role="toolbar" aria-label="3D Camera and Spell VFX Controls">
+              <div class="cam-btn-group">
+                <button type="button" class="vfx-chip active" id="camOrbitBtn" data-cam="orbit">🎥 3D Orbit</button>
+                <button type="button" class="vfx-chip" id="camHeroBtn" data-cam="hero">🧙 Hero Cam</button>
+                <button type="button" class="vfx-chip" id="camBossBtn" data-cam="boss">🐉 Dragon Cam</button>
+                <button type="button" class="vfx-chip" id="camTopBtn" data-cam="topdown">🗺️ Top-Down</button>
+              </div>
+              <div class="vfx-btn-group">
+                <button type="button" class="vfx-chip vfx-fire" id="vfxFireballBtn" title="Launch 3D Fireball Meteor &amp; Explosion">🔥 Cast Fireball</button>
+                <button type="button" class="vfx-chip vfx-bolt" id="vfxLightningBtn" title="Arc 3D Chain Lightning across Monsters">⚡ Chain Lightning</button>
+                <button type="button" class="vfx-chip vfx-heal" id="vfxHealBtn" title="Summon Celestial Healing Pillar">✨ Divine Smite</button>
+                <button type="button" class="vfx-chip vfx-dice" id="vfxDiceBtn" title="Tumble 3D Icosahedron d20 across the Board">🎲 Roll 3D d20</button>
+              </div>
+            </div>
+
+            <div class="canvas-wrapper">
+              <canvas id="battlemapCanvas" width="960" height="540" tabindex="0" aria-label="Interactive 3D Isometric Dungeon Tabletop"></canvas>
+              <div class="map-3d-labels-overlay" id="map3dLabelsOverlay" aria-hidden="true"></div>
+              <div class="map-hud-overlay">
+                <span class="hud-pill" id="heroCoordPill">Hero @ (2, 3)</span>
+                <span class="hud-pill" id="hoverRangePill">Drag to Pan/Orbit • Scroll to Zoom • Click Any Isometric Tile to Move (5 ft/tile)</span>
+              </div>
+            </div>
+
+            <div class="map-controls-bar">
+              <div class="dpad-group" role="group" aria-label="Token Movement Controls">
+                <span class="dpad-label">Move Miniature (5 ft):</span>
+                <button type="button" class="dpad-btn" id="moveWestBtn" data-dx="-1" data-dy="0" title="Move West (A / Left)">⬅️ W</button>
+                <button type="button" class="dpad-btn" id="moveNorthBtn" data-dx="0" data-dy="-1" title="Move North (W / Up)">⬆️ N</button>
+                <button type="button" class="dpad-btn" id="moveSouthBtn" data-dx="0" data-dy="1" title="Move South (S / Down)">⬇️ S</button>
+                <button type="button" class="dpad-btn" id="moveEastBtn" data-dx="1" data-dy="0" title="Move East (D / Right)">➡️ E</button>
+              </div>
+              <div class="map-legend">
+                <span class="legend-item"><i class="dot hero-dot"></i>Hero Mini</span>
+                <span class="legend-item"><i class="dot npc-dot"></i>NPC Mini</span>
+                <span class="legend-item"><i class="dot monster-dot"></i>Boss/Monster</span>
+                <span class="legend-item"><i class="dot chest-dot"></i>3D Chest</span>
+                <span class="legend-item"><i class="dot hazard-dot"></i>Lava/Rune</span>
+                <span class="legend-item"><i class="dot door-dot"></i>Hinged Door</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tactical Initiative & Monster Tracker -->
+          <div class="panel-card ornate-frame">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">⚔️ D&amp;D 5e Initiative Order &amp; Monster Portraits</h2>
+                <p class="panel-subtitle">Click any combatant card to focus the 3D camera or launch a targeted strike</p>
+              </div>
+              <div class="hero-quick-vitals" id="deckHeroVitals"></div>
+            </div>
+            <div class="initiative-grid" id="initiativeOrderList"></div>
+          </div>
+        </div>
+
+        <!-- Right Column: Narrative GM Chronicle, Action Composer & NPC Disposition -->
+        <div class="deck-right-col">
+          <div class="panel-card chronicle-panel ornate-frame">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">📜 Dungeon Master's Chronicle &amp; Action Tome</h2>
+                <p class="panel-subtitle">Every turn orchestrates Worldbuilder, Rules Lawyer, NPC Actor &amp; Tactical Director + 3D VFX</p>
+              </div>
+              <div class="dice-mode-Quick">
+                <label for="deckDiceModeSelect" class="sr-only">Roll Mode</label>
+                <select id="deckDiceModeSelect" class="compact-select" title="D20 Roll Mode">
+                  <option value="normal">🎲 Normal d20</option>
+                  <option value="adv">🌟 Advantage (2d20kh1)</option>
+                  <option value="dis">💀 Disadvantage (2d20kl1)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="chronicle-feed" id="chronicleFeed" aria-live="polite"></div>
+
+            <!-- Suggested Quick Actions -->
+            <div class="quick-actions-row" id="suggestedActionsRow"></div>
+
+            <!-- Player Action Composer -->
+            <form id="gmActionForm" class="action-composer">
+              <select id="actionTypeSelect" class="compact-select" aria-label="Action Category">
+                <option value="roleplay">💬 Roleplay / Parley</option>
+                <option value="attack">⚔️ Weapon Attack</option>
+                <option value="spell">✨ Cast Spell</option>
+                <option value="explore">🔍 Skill / Inspect</option>
+              </select>
+              <input
+                type="text"
+                id="actionInput"
+                class="action-input"
+                placeholder="Declare your action, spell, dialogue, bribe, or tactical strike..."
+                required
+              />
+              <button type="submit" class="primary-btn" id="submitActionBtn">🎲 Resolve Turn</button>
+            </form>
+          </div>
+
+          <!-- NPC Actor Panel with Persistent Disposition Meter -->
+          <div class="panel-card ornate-frame">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">🎭 Scene NPCs &amp; Persistent Disposition Meters</h2>
+                <p class="panel-subtitle">Hostile ↔ Suspicious ↔ Neutral ↔ Friendly ↔ Sworn Ally</p>
+              </div>
+            </div>
+            <div class="npc-list" id="npcCardsContainer"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== VIEW 2: 3D POLYHEDRAL DICE TRAY ==================== -->
+    <section id="view-dice" class="view-section">
+      <div class="two-col-layout">
+        <div class="panel-card ornate-frame">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">🎲 3D Polyhedral Dice Vault (`d4`–`d100`)</h2>
+              <p class="panel-subtitle">Click any polyhedral die to roll with Web Audio clatter, 3D tumble &amp; critical fanfare</p>
+            </div>
+            <div class="btn-group" id="diceModeGroup" role="group" aria-label="Advantage or Disadvantage">
+              <button type="button" class="mode-toggle-btn active" data-mode="normal">Normal</button>
+              <button type="button" class="mode-toggle-btn" data-mode="adv">🌟 Advantage</button>
+              <button type="button" class="mode-toggle-btn" data-mode="dis">💀 Disadvantage</button>
+            </div>
+          </div>
+
+          <div class="polyhedral-grid" id="polyhedralDiceGrid">
+            <button type="button" class="poly-die-btn" data-sides="4">
+              <svg viewBox="0 0 80 80" class="die-svg"><polygon points="40,8 72,66 8,66" /></svg>
+              <span class="die-name">d4</span>
+              <span class="die-sub">Tetrahedron</span>
+            </button>
+            <button type="button" class="poly-die-btn" data-sides="6">
+              <svg viewBox="0 0 80 80" class="die-svg"><rect x="14" y="14" width="52" height="52" rx="6" /></svg>
+              <span class="die-name">d6</span>
+              <span class="die-sub">Cube</span>
+            </button>
+            <button type="button" class="poly-die-btn" data-sides="8">
+              <svg viewBox="0 0 80 80" class="die-svg"><polygon points="40,6 72,40 40,74 8,40" /></svg>
+              <span class="die-name">d8</span>
+              <span class="die-sub">Octahedron</span>
+            </button>
+            <button type="button" class="poly-die-btn" data-sides="10">
+              <svg viewBox="0 0 80 80" class="die-svg"><polygon points="40,6 70,34 58,72 22,72 10,34" /></svg>
+              <span class="die-name">d10</span>
+              <span class="die-sub">Pentagonal</span>
+            </button>
+            <button type="button" class="poly-die-btn" data-sides="12">
+              <svg viewBox="0 0 80 80" class="die-svg"><polygon points="40,6 66,18 74,46 56,72 24,72 6,46 14,18" /></svg>
+              <span class="die-name">d12</span>
+              <span class="die-sub">Dodecahedron</span>
+            </button>
+            <button type="button" class="poly-die-btn active-die" data-sides="20" id="rollD20MainBtn">
+              <svg viewBox="0 0 80 80" class="die-svg d20-svg"><polygon points="40,5 71,22 71,58 40,75 9,58 9,22" /><polygon points="40,16 61,54 19,54" class="inner-facet" /></svg>
+              <span class="die-name">d20</span>
+              <span class="die-sub">Icosahedron</span>
+            </button>
+            <button type="button" class="poly-die-btn" data-sides="100">
+              <svg viewBox="0 0 80 80" class="die-svg"><circle cx="40" cy="40" r="31" /><circle cx="40" cy="40" r="20" class="inner-facet" /></svg>
+              <span class="die-name">d100</span>
+              <span class="die-sub">Percentile</span>
+            </button>
+          </div>
+
+          <div class="dice-params-bar">
+            <label class="field-inline">
+              <span>Count</span>
+              <input type="number" id="diceCountInput" value="1" min="1" max="10" class="num-input" />
+            </label>
+            <label class="field-inline">
+              <span>Modifier</span>
+              <input type="number" id="diceModInput" value="4" min="-10" max="20" class="num-input" />
+            </label>
+            <label class="field-inline">
+              <span>Target DC</span>
+              <input type="number" id="diceDcInput" value="14" min="5" max="30" class="num-input" />
+            </label>
+            <button type="button" class="primary-btn" id="rollSelectedDieBtn">🎲 Roll Now</button>
+            <button type="button" class="small-btn gold-outline" id="forceNat20Btn" title="Test Critical Hit (Nat 20) Fanfare">🌟 Test Nat 20</button>
+            <button type="button" class="small-btn crimson-outline" id="forceNat1Btn" title="Test Critical Fumble (Nat 1)">💀 Test Nat 1</button>
+          </div>
+
+          <!-- Animated 3D Die Stage -->
+          <div class="dice-stage-box" id="diceStageBox">
+            <div class="animated-die-token" id="animatedDieToken">20</div>
+            <div class="dice-stage-details">
+              <div class="dice-stage-title" id="diceResultHeadline">Ready to Roll (1d20+4 vs DC 14)</div>
+              <div class="dice-stage-sub" id="diceResultBreakdown">Select any polyhedral die above or click Roll Now.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-card ornate-frame">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">📊 Probability Distribution &amp; Roll History Log</h2>
+              <p class="panel-subtitle">Exact mathematical odds, expected value, and chronological roll log</p>
+            </div>
+          </div>
+
+          <div class="prob-metrics-grid" id="probMetricsGrid"></div>
+          <div class="histogram-container" id="probHistogram"></div>
+
+          <h3 class="sub-heading">Chronological Roll Log</h3>
+          <div class="roll-history-list" id="rollHistoryList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== VIEW 3: HERO BUILDER & SPELLBOOK ==================== -->
+    <section id="view-hero" class="view-section">
+      <div class="panel-card ornate-frame">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">🛡️ D&amp;D 5e Hero Gallery &amp; Oil-Painted Character Sheets</h2>
+            <p class="panel-subtitle">Choose an iconic hero archetype with custom 3D miniature &amp; oil portrait, or customize ability scores &amp; spells</p>
+          </div>
+          <div class="hero-action-btns">
+            <button type="button" class="small-btn" id="heroRestBtn">⛺ Sanctum Rest (Full HP/Mana)</button>
+            <button type="button" class="primary-btn" id="heroGrantXpBtn">⬆️ Grant +500 XP</button>
+          </div>
+        </div>
+
+        <div class="hero-presets-strip" id="heroPresetsStrip"></div>
+      </div>
+
+      <div class="two-col-layout">
+        <div class="panel-card ornate-frame">
+          <div class="panel-header">
+            <h3 class="panel-title">⚡ Ability Scores, Modifiers &amp; Customization</h3>
+            <button type="button" class="primary-btn" id="saveHeroCustomBtn">💾 Save Hero Sheet</button>
+          </div>
+
+          <div class="hero-sheet-banner" id="heroActivePortraitBanner"></div>
+
+          <div class="hero-identity-form">
+            <label class="form-field">
+              <span>Hero Name</span>
+              <input type="text" id="heroNameInput" class="text-input" />
+            </label>
+            <label class="form-field">
+              <span>Ancestry</span>
+              <input type="text" id="heroAncestryInput" class="text-input" />
+            </label>
+            <label class="form-field">
+              <span>Class &amp; Oath</span>
+              <input type="text" id="heroClassInput" class="text-input" />
+            </label>
+          </div>
+
+          <div class="abilities-grid" id="heroAbilitiesGrid"></div>
+          <div class="skills-tags-row" id="heroSkillsTags"></div>
+        </div>
+
+        <div class="panel-card ornate-frame">
+          <div class="panel-header">
+            <h3 class="panel-title">🎒 Equipment, Potions &amp; Arcane Spellbook</h3>
+          </div>
+          <div id="heroActionFeedback" class="feedback-banner" hidden></div>
+
+          <h4 class="sub-heading">Inventory &amp; Potions (Click to Equip or Quaff)</h4>
+          <div class="inventory-list" id="heroInventoryList"></div>
+
+          <h4 class="sub-heading">Prepared Spells &amp; 3D Combat Techniques</h4>
+          <div class="spells-list" id="heroSpellsList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== VIEW 4: CAMPAIGNS & CHRONICLE EXPORT ==================== -->
+    <section id="view-campaigns" class="view-section">
+      <div class="two-col-layout">
+        <div class="panel-card ornate-frame">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">🏰 Playable Campaigns Vault (Save / Load / Reset)</h2>
+              <p class="panel-subtitle">3 pre-loaded playable campaigns ready out of the box + custom adventures</p>
+            </div>
+          </div>
+          <div class="campaigns-grid" id="campaignsVaultGrid"></div>
+
+          <hr class="section-divider" />
+          <h3 class="sub-heading">✨ Launch New Procedural Campaign</h3>
+          <form id="newCampaignForm" class="new-campaign-form">
+            <label class="form-field">
+              <span>Campaign Title</span>
+              <input type="text" id="newCampTitle" class="text-input" value="Ashes of the Starlight Vault" required />
+            </label>
+            <label class="form-field">
+              <span>Battlemap Biome (6 Biomes)</span>
+              <select id="newCampBiome" class="text-input"></select>
+            </label>
+            <label class="form-field">
+              <span>Starting Hero</span>
+              <select id="newCampHero" class="text-input"></select>
+            </label>
+            <button type="submit" class="primary-btn" id="createCampaignBtn">🚀 Create &amp; Launch Campaign</button>
+          </form>
+        </div>
+
+        <div class="panel-card ornate-frame">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">📜 Adventure Chronicle Export (Markdown &amp; HTML)</h2>
+              <p class="panel-subtitle">Download complete campaign logs with NPC memories &amp; D20 roll telemetry</p>
+            </div>
+            <div class="export-btns">
+              <a class="primary-btn link-btn" id="downloadMdBtn" href="/api/campaigns/camp_sunken_crypt/export.md" download>⬇️ Markdown (.md)</a>
+              <a class="small-btn link-btn" id="downloadHtmlBtn" href="/api/campaigns/camp_sunken_crypt/export.html" download>⬇️ Styled HTML (.html)</a>
+            </div>
+          </div>
+          <pre class="markdown-preview" id="chronicleMarkdownPreview">Loading chronicle preview...</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== VIEW 5: AI & AUDIO SETTINGS ==================== -->
+    <section id="view-settings" class="view-section">
+      <div class="two-col-layout">
+        <div class="panel-card ornate-frame">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">⚙️ 4-Agent Tabletop GM Engine Configuration</h2>
+              <p class="panel-subtitle">Works 100% Offline out-of-the-box + Local Ollama &amp; Cloud LLM support</p>
+            </div>
+          </div>
+          <form id="settingsForm" class="settings-form">
+            <label class="form-field">
+              <span>GM Narrative Provider</span>
+              <select id="settingsProvider" class="text-input">
+                <option value="auto">Auto (Offline Procedural Engine unless Key/Ollama set)</option>
+                <option value="offline">100% Offline Procedural Tabletop Engine</option>
+                <option value="ollama">Local Ollama (/api/chat)</option>
+                <option value="openai">OpenAI / Compatible API</option>
+                <option value="anthropic">Anthropic Claude API</option>
+              </select>
+            </label>
+            <label class="form-field">
+              <span>Local Ollama Endpoint URL</span>
+              <input type="text" id="settingsOllamaUrl" class="text-input" value="http://127.0.0.1:11434" />
+            </label>
+            <label class="form-field">
+              <span>Local Ollama Model</span>
+              <input type="text" id="settingsOllamaModel" class="text-input" value="llama3.2:latest" />
+            </label>
+            <label class="form-field">
+              <span>OpenAI Model</span>
+              <input type="text" id="settingsOpenaiModel" class="text-input" value="gpt-4o-mini" />
+            </label>
+            <button type="submit" class="primary-btn" id="saveSettingsBtn">💾 Save Engine Settings</button>
+            <span id="settingsSavedBadge" class="saved-pill" hidden>✓ Saved</span>
+          </form>
+        </div>
+
+        <div class="panel-card ornate-frame">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">🎵 Web Audio Synthesizer &amp; Diagnostics</h2>
+              <p class="panel-subtitle">Zero-dependency Web Audio soundscapes, dice clatter &amp; critical fanfares</p>
+            </div>
+          </div>
+          <div class="audio-test-grid">
+            <button type="button" class="small-btn" id="testDiceSoundBtn">🎲 Play Dice Clatter SFX</button>
+            <button type="button" class="small-btn gold-outline" id="testCritSoundBtn">🎺 Play Nat 20 Fanfare SFX</button>
+            <button type="button" class="small-btn crimson-outline" id="testFumbleSoundBtn">🔔 Play Nat 1 Fumble SFX</button>
+          </div>
+          <div class="diagnostics-box" id="settingsDiagnosticsBox"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/static/vendor/three.min.js?v=6.0"></script>
+  <script src="/static/battlemap3d.js?v=6.0"></script>
+  <script src="/static/app.js?v=6.0"></script>
+</body>
+</html>

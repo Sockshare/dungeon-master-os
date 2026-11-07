@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dungeon-master-os"
+version = "2.0.0"
+description = "Dungeon Master OS — 3D WebGL Dungeons & Dragons Tabletop Battlemap & 4-Agent AI GM Command Deck"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.110.0",
+    "uvicorn>=0.29.0",
+    "pydantic>=2.6.0",
+    "pillow>=10.2.0",
+    "httpx>=0.27.0"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "httpx>=0.27.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["dungeon_master_os*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
