@@ -98,8 +98,9 @@ def test_ui_all_views_zero_errors_and_screenshots(live_server: str) -> None:
             }"""
         )
         assert board_metrics["dpr"] == 2
-        assert board_metrics["clientW"] >= 600
-        assert board_metrics["clientH"] >= 520
+        assert board_metrics["clientW"] >= 780
+        assert board_metrics["clientH"] >= 440
+        assert 1.72 <= (board_metrics["clientW"] / board_metrics["clientH"]) <= 1.84
         assert board_metrics["canvasW"] == board_metrics["clientW"] * 2
         assert board_metrics["canvasH"] == board_metrics["clientH"] * 2
         hidpi_ctx.close()

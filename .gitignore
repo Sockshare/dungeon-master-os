@@ -8,3 +8,4 @@ server.log
 .env
 
 data/
+*.log
